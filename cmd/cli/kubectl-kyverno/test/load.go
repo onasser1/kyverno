@@ -117,6 +117,7 @@ func cleanTest(test *v1alpha1.Test) {
 		}
 	}
 	test.JSONPayloads = removeDuplicateStrings(cleaned)
+	test.OldResources = removeDuplicateStrings(test.OldResources)
 }
 
 func removeDuplicateStrings(strings []string) []string {
