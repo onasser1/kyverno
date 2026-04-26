@@ -127,6 +127,11 @@ func checkOptions(ctx context.Context, att *v1beta1.Cosign, baseROpts []remote.O
 					SubjectRegExp: id.SubjectRegExp,
 				})
 		}
+		opts.CertGithubWorkflowName = att.Keyless.AdditionalExtensions["githubWorkflowName"]
+		opts.CertGithubWorkflowRepository = att.Keyless.AdditionalExtensions["githubWorkflowRepository"]
+		opts.CertGithubWorkflowRef = att.Keyless.AdditionalExtensions["githubWorkflowRef"]
+		opts.CertGithubWorkflowTrigger = att.Keyless.AdditionalExtensions["githubWorkflowTrigger"]
+
 		fulcioRoots, fulcioIntermediates, err := getFulcio(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("getting Fulcio certs: %w", err)
