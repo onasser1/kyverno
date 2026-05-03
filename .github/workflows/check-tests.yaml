@@ -63,6 +63,7 @@ jobs:
       - images
       - cli
     permissions:
+      id-token: write
       packages: read
     uses: ./.github/workflows/tests-conformance.yaml
 
