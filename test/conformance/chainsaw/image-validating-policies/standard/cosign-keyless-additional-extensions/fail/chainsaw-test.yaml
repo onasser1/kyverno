@@ -8,7 +8,7 @@ spec:
   steps:
     - name: create policy
       use:
-        template: /../../../_step-templates/create-policy.yaml
+        template: /../../../../_step-templates/create-policy.yaml
         with:
           bindings:
             - name: file
@@ -26,3 +26,4 @@ spec:
             content: kubectl run test-keyless-fail -n $NAMESPACE --image=$TEST_IMAGE_URL
             check:
               ($error != null): true
+              (contains($error, "admission webhook") && contains($error, "check-keyless-extensions-fail") && contains($error, "additionalExtensions")): true
