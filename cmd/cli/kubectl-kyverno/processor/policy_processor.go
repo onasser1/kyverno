@@ -60,7 +60,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/admission"
 	"k8s.io/apiserver/pkg/cel/lazy"
 	"k8s.io/client-go/openapi"
@@ -108,6 +107,7 @@ type PolicyProcessor struct {
 	NamespaceCache            map[string]*unstructured.Unstructured
 	ConfigMapResolver         engineapi.ConfigmapResolver
 	RESTMapper                meta.RESTMapper
+	TestPoliciesByOperation   map[string][]string
 }
 
 func (p *PolicyProcessor) ApplyPoliciesOnResource() ([]engineapi.EngineResponse, error) {
@@ -555,28 +555,20 @@ func (p *PolicyProcessor) ApplyPoliciesOnResource() ([]engineapi.EngineResponse,
 					admissionv1.Update: {},
 					admissionv1.Delete: {},
 				}
-
-				for _, pol := range k8sPolicies {
-					operation := admissionv1.Create
-					if p.Variables != nil {
-						vals, err := p.Variables.ComputeVariables(
-							p.Store,
-							pol.GetName(),
-							resource.GetName(),
-							resource.GetKind(),
-							sets.New[string](),
-						)
-
-						if err == nil {
-							switch vals["request.operation"] {
-							case "DELETE":
-								operation = admissionv1.Delete
-							case "UPDATE":
-								operation = admissionv1.Update
-							}
-						}
+				operation := admissionv1.Create
+				for op := range p.TestPoliciesByOperation {
+					newOperation := strings.ToLower(op)
+					switch newOperation {
+					case "delete":
+						operation = admissionv1.Delete
+					case "update":
+						operation = admissionv1.Update
+					case "connect":
+						operation = admissionv1.Connect
 					}
-					policiesByOperation[operation] = append(policiesByOperation[operation], pol.GetName())
+					for _, polName := range p.TestPoliciesByOperation[op] {
+						policiesByOperation[operation] = append(policiesByOperation[operation], polName)
+					}
 				}
 
 				resourceKey := GenerateResourceKey(&resource)

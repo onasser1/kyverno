@@ -327,6 +327,8 @@ func runTest(out io.Writer, testCase test.TestCase, registryAccess bool) (*TestR
 
 	// TODO document the code below
 	ruleToCloneSourceResource := map[string]string{}
+	policiesByOperation := map[string][]string{}
+
 	for _, policy := range results.Policies {
 		for _, rule := range autogen.Default.ComputeRules(policy, "") {
 			for _, res := range testCase.Test.Results {
@@ -365,6 +367,10 @@ func runTest(out io.Writer, testCase test.TestCase, registryAccess bool) (*TestR
 					}
 					break
 				}
+				if res.ResourceOperation == "" {
+					res.ResourceOperation = "CREATE"
+				}
+				policiesByOperation[res.ResourceOperation] = append(policiesByOperation[res.ResourceOperation], res.Policy)
 			}
 		}
 	}
@@ -423,6 +429,7 @@ func runTest(out io.Writer, testCase test.TestCase, registryAccess bool) (*TestR
 			Out:                               io.Discard,
 			ConfigMapResolver:                 cmResolver,
 			RESTMapper:                        restMapper,
+			TestPoliciesByOperation:           policiesByOperation,
 		}
 		ers, err := policyProcessor.ApplyPoliciesOnResource()
 		if err != nil {
