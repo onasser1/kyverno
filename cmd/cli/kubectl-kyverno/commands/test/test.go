@@ -374,6 +374,17 @@ func runTest(out io.Writer, testCase test.TestCase, registryAccess bool) (*TestR
 			}
 		}
 	}
+
+	// Build policiesByOperation from test results for all policy types
+	// (the loop above only covers old-style Kyverno policies)
+	for _, res := range testCase.Test.Results {
+		op := res.ResourceOperation
+		if op == "" {
+			op = "CREATE"
+		}
+		policiesByOperation[op] = append(policiesByOperation[op], res.Policy)
+	}
+
 	// validate policies
 	validPolicies := make([]kyvernov1.PolicyInterface, 0, len(results.Policies))
 	skippedPolicyNames := make(map[string]string)
