@@ -555,22 +555,35 @@ func (p *PolicyProcessor) ApplyPoliciesOnResource() ([]engineapi.EngineResponse,
 					admissionv1.Update: {},
 					admissionv1.Delete: {},
 				}
-				for op, polNames := range p.TestPoliciesByOperation {
-					operation := admissionv1.Create
-					switch strings.ToLower(op) {
-					case "delete":
-						operation = admissionv1.Delete
-					case "update":
-						operation = admissionv1.Update
-					case "connect":
-						operation = admissionv1.Connect
+				if len(p.TestPoliciesByOperation) == 0 {
+					for _, pol := range k8sPolicies {
+						policiesByOperation[admissionv1.Create] = append(policiesByOperation[admissionv1.Create], pol.GetName())
 					}
-					for _, polName := range polNames {
-						policiesByOperation[operation] = append(policiesByOperation[operation], polName)
+				} else {
+					for op, polNames := range p.TestPoliciesByOperation {
+						operation := admissionv1.Create
+						switch strings.ToLower(op) {
+						case "delete":
+							operation = admissionv1.Delete
+						case "update":
+							operation = admissionv1.Update
+						case "connect":
+							operation = admissionv1.Connect
+						}
+						for _, polName := range polNames {
+							policiesByOperation[operation] = append(policiesByOperation[operation], polName)
+						}
 					}
 				}
 
-				for operation, policyNames := range policiesByOperation {
+				operationOrder := []admissionv1.Operation{
+					admissionv1.Create,
+					admissionv1.Update,
+					admissionv1.Delete,
+					admissionv1.Connect,
+				}
+				for _, operation := range operationOrder {
+					policyNames := policiesByOperation[operation]
 					if len(policyNames) == 0 {
 						continue
 					}

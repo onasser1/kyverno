@@ -71,7 +71,7 @@ type TestResultBase struct {
 
 	// ResourceOperation indicates the expected operation to be applied within the test.
 	// Expected values are CREATE, UPDATE, DELETE and CONNECT.
-	// this field is optional, if unset, it fallbacks to CREATE.
+	// This field is optional, if unset, it falls back to CREATE.
 	// +optional
 	ResourceOperation string `json:"resourceOperation,omitempty"`
 }

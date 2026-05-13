@@ -210,7 +210,7 @@ spec:
                   description: |-
                     ResourceOperation indicates the expected operation to be applied within the test.
                     Expected values are CREATE, UPDATE, DELETE and CONNECT.
-                    this field is optional, if unset, it fallbacks to CREATE.
+                    This field is optional, if unset, it falls back to CREATE.
                   type: string
                 resourceSpecs:
                   description: Resources gives us the list of resources on which the
