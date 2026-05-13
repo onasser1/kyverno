@@ -1457,6 +1457,20 @@ bool
 <p>FailOnMissingResources indicates if the test should fail if the patched/generated resources are missing.</p>
 </td>
 </tr>
+<tr>
+<td>
+<code>resourceOperation</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>ResourceOperation indicates the expected operation to be applied within the test.
+Expected values are CREATE, UPDATE, DELETE and CONNECT.
+this field is optional, if unset, it fallbacks to CREATE.</p>
+</td>
+</tr>
 </tbody>
 </table>
 <hr />

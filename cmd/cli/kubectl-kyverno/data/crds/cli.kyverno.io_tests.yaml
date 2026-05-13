@@ -206,6 +206,12 @@ spec:
                 policy:
                   description: Policy mentions the name of the policy.
                   type: string
+                resourceOperation:
+                  description: |-
+                    ResourceOperation indicates the expected operation to be applied within the test.
+                    Expected values are CREATE, UPDATE, DELETE and CONNECT.
+                    this field is optional, if unset, it fallbacks to CREATE.
+                  type: string
                 resourceSpecs:
                   description: Resources gives us the list of resources on which the
                     policy is going to be applied.

@@ -3,16 +3,16 @@ kind: Test
 metadata:
   name: deny-label-change-test
 oldResources:
-  - old-resource.yaml
+- old-resource.yaml
 policies:
-  - policy.yaml
+- policy.yaml
 resources:
-  - resource.yaml
+- resource.yaml
 results:
-  - kind: Pod
-    policy: restrict-workload-label-changes
-    resourceOperation: UPDATE
-    resources:
-      - prod-app
-    result: fail
+- kind: Pod
+  policy: restrict-workload-label-changes
+  resourceOperation: UPDATE
+  resources:
+  - prod-app
+  result: fail
 variables: values.yaml

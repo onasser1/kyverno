@@ -80,7 +80,7 @@ type PolicyProcessor struct {
 	MutatingPolicies                  []policiesv1beta1.MutatingPolicyLike
 	TargetResources                   []*unstructured.Unstructured
 	Resource                          unstructured.Unstructured
-	OldResources                      map[string]*unstructured.Unstructured
+	OldResource                       *unstructured.Unstructured
 	JsonPayload                       unstructured.Unstructured
 	PolicyExceptions                  []*kyvernov2.PolicyException
 	CELExceptions                     []*policiesv1beta1.PolicyException
@@ -555,10 +555,9 @@ func (p *PolicyProcessor) ApplyPoliciesOnResource() ([]engineapi.EngineResponse,
 					admissionv1.Update: {},
 					admissionv1.Delete: {},
 				}
-				operation := admissionv1.Create
-				for op := range p.TestPoliciesByOperation {
-					newOperation := strings.ToLower(op)
-					switch newOperation {
+				for op, polNames := range p.TestPoliciesByOperation {
+					operation := admissionv1.Create
+					switch strings.ToLower(op) {
 					case "delete":
 						operation = admissionv1.Delete
 					case "update":
@@ -566,15 +565,9 @@ func (p *PolicyProcessor) ApplyPoliciesOnResource() ([]engineapi.EngineResponse,
 					case "connect":
 						operation = admissionv1.Connect
 					}
-					for _, polName := range p.TestPoliciesByOperation[op] {
+					for _, polName := range polNames {
 						policiesByOperation[operation] = append(policiesByOperation[operation], polName)
 					}
-				}
-
-				resourceKey := GenerateResourceKey(&resource)
-				var updateOldObject *unstructured.Unstructured
-				if old, ok := p.OldResources[resourceKey]; ok {
-					updateOldObject = old
 				}
 
 				for operation, policyNames := range policiesByOperation {
@@ -587,8 +580,8 @@ func (p *PolicyProcessor) ApplyPoliciesOnResource() ([]engineapi.EngineResponse,
 						oldObject = &resource
 					case admissionv1.Update:
 						object = &resource
-						if updateOldObject != nil { // if updateOldObject == nil, no OldResources found so we let oldObject = nil.
-							oldObject = updateOldObject
+						if p.OldResource != nil {
+							oldObject = p.OldResource
 						}
 					default:
 						object = &resource

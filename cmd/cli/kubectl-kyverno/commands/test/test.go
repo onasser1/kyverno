@@ -408,6 +408,11 @@ func runTest(out io.Writer, testCase test.TestCase, registryAccess bool) (*TestR
 		SkippedPolicies: skippedPolicyNames,
 	}
 	for _, resource := range uniques {
+		// Look up the matching old resource for this specific resource
+		var oldResource *unstructured.Unstructured
+		if len(oldResourceMap) > 0 {
+			oldResource = oldResourceMap[processor.GenerateResourceKey(resource)]
+		}
 		// the policy processor is for multiple policies at once
 		policyProcessor := processor.PolicyProcessor{
 			Store:                             &store,
@@ -421,7 +426,7 @@ func runTest(out io.Writer, testCase test.TestCase, registryAccess bool) (*TestR
 			MutatingAdmissionPolicyBindings:   results.MAPBindings,
 			TargetResources:                   targetResources,
 			Resource:                          *resource,
-			OldResources:                      oldResourceMap,
+			OldResource:                       oldResource,
 			PolicyExceptions:                  polexLoader.Exceptions,
 			CELExceptions:                     polexLoader.CELExceptions,
 			ParameterResources:                paramObjectsArr,
